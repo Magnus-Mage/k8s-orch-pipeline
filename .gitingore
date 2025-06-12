@@ -1,0 +1,46 @@
+# --- Terraform ---
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.backup
+terraform.tfvars
+terraform.tfvars.json
+override.tf
+override.tf.json
+*.log
+*.tfplan
+
+# Sensitive output
+inventory.json
+
+# --- Ansible ---
+*.retry
+*.log
+*.tar.gz
+*.tar
+*.gz
+*.tmp
+*.bak
+*.swp
+__pycache__/
+
+# Inventory (if generated dynamically)
+inventory.ini
+
+# SSH keys (if stored locally)
+*.pem
+*.pub
+*.key
+*.crt
+ssh_config
+*.pem.*
+
+# Python bytecode (if using Python helper scripts)
+*.pyc
+*.pyo
+
+# System
+.DS_Store
+Thumbs.db
+

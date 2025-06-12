@@ -1,0 +1,19 @@
+- hosts: masters[0]
+  become: yes
+  tasks:
+    - name: Deploy Calico CNI
+      shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Install Helm
+      shell: |
+        curl -LO https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz
+        tar -xvf helm-v3.14.0-linux-amd64.tar.gz
+        mv linux-amd64/helm /usr/local/bin/helm
+
+    - name: Verify kube-proxy
+      shell: kubectl get daemonset kube-proxy -n kube-system
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
