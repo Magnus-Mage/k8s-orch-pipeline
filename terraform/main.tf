@@ -12,7 +12,7 @@ provider "openstack" {
 // }
 
 resource "openstack_compute_keypair_v2" "user_key" {
-  name       = "user-key-new"
+  name       = "user-key-new2"
   public_key = file("/home/ubuntu/.ssh/user-key.pub")
 }
 
