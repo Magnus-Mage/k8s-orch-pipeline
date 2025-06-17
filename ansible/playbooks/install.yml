@@ -1,0 +1,6 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Disable swap and set up Kubernetes prereqs
+      script: ../scripts/setup-k8s.sh
+

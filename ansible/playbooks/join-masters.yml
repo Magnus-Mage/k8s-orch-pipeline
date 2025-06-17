@@ -1,0 +1,6 @@
+- hosts: masters[1:]
+  become: yes
+  tasks:
+    - name: Join other masters
+      shell: "{{ hostvars['masters[0]'].join_command }} --control-plane --apiserver-advertise-address={{ ansible_host }} --certificate-key <CERT_KEY>"
+

@@ -1,0 +1,6 @@
+- hosts: workers
+  become: yes
+  tasks:
+    - name: Join worker nodes
+      shell: "{{ hostvars['masters[0]'].join_command }}"
+
