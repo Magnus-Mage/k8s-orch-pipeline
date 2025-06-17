@@ -1,11 +1,9 @@
 #!/bin/bash
+set -e
+cd /home/ubuntu/ansible || exit 1
 
-cd terraform
-terraform init
-terraform apply -auto-approve
+ansible-playbook -i inventory.ini playbooks/install.yml --private-key /home/ubuntu/.ssh/user-key -u ubuntu -vvv
+ansible-playbook -i inventory.ini playbooks/init-control-plane.yml --private-key /home/ubuntu/.ssh/user-key -u ubuntu -vvv
+ansible-playbook -i inventory.ini playbooks/join-workers.yml --private-key /home/ubuntu/.ssh/user-key -u ubuntu -vvv
+ansible-playbook -i inventory.ini playbooks/post-install.yml --private-key /home/ubuntu/.ssh/user-key -u ubuntu -vvv
 
-cd ../ansible
-ansible-playbook playbooks/install.yml
-ansible-playbook playbooks/init-control-plane.yml
-ansible-playbook playbooks/join-workers.yml
-ansible-playbook playbooks/post-install.yml

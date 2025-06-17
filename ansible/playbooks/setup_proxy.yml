@@ -38,3 +38,27 @@
           - "--chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r"
       delegate_to: localhost
 
+    - name: Copy scripts directory to proxy
+      synchronize:
+        src: "{{ playbook_dir }}/../../scripts/"
+        dest: "/home/ubuntu/scripts/"
+        rsync_opts:
+          - "--chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r"
+      delegate_to: localhost
+
+    - name: Ensure script is executable
+      file:
+        path: "/home/ubuntu/scripts/run-cluster.sh"
+        mode: '0755'
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Run the specified script on proxy
+      shell: "/home/ubuntu/scripts/run-cluster.sh"
+      args:
+        chdir: "/home/ubuntu"
+      register: run_result
+
+    - name: Print script output
+      debug:
+        var: run_result.stdout
