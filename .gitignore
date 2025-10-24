@@ -1,46 +1,132 @@
-# --- Terraform ---
-.terraform/
-*.tfstate
-*.tfstate.*
-crash.log
-*.backup
-terraform.tfvars
-terraform.tfvars.json
-override.tf
-override.tf.json
-*.log
-*.tfplan
+# Terraform files
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/.terraform.tfstate.lock.info
+terraform/tfplan
+terraform/crash.log
+terraform/crash.*.log
+terraform/override.tf
+terraform/override.tf.json
+terraform/*_override.tf
+terraform/*_override.tf.json
 
-# Sensitive output
-inventory.json
-inventory.ini
-# --- Ansible ---
-*.retry
-*.log
-*.tar.gz
-*.tar
-*.gz
-*.tmp
-*.bak
-*.swp
-__pycache__/
+# Terraform variables - IMPORTANT: Contains sensitive data
+terraform/terraform.tfvars
+terraform/*.auto.tfvars
+terraform/*.auto.tfvars.json
 
-# Inventory (if generated dynamically)
-inventory.ini
+# Terraform inventory output
+terraform/inventory.json
 
-# SSH keys (if stored locally)
+# Ansible files
+ansible/inventory.ini
+ansible/inventory.ini.bak
+ansible/*.retry
+ansible/.vault_pass
+ansible/group_vars/all/vault.yml
+
+# SSH Keys - NEVER commit these!
 *.pem
-*.pub
 *.key
-*.crt
-ssh_config
-*.pem.*
+**/.ssh/id_rsa
+**/.ssh/id_dsa
+**/.ssh/id_ecdsa
+**/.ssh/id_ed25519
+**/.ssh/*_rsa
+**/.ssh/*_dsa
+**/.ssh/*_ecdsa
+**/.ssh/*_ed25519
+**/.ssh/user-key
+**/.ssh/user-key.pub
 
-# Python bytecode (if using Python helper scripts)
-*.pyc
-*.pyo
+# Logs and metrics
+logs/
+*.log
+ansible/*.log
+terraform/*.log
 
-# System
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+.coverage
+
+# OS specific
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+*~
+.*.swp
+.*.swo
 
+# IDE specific
+.vscode/
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+
+# Backup files
+*.bak
+*.backup
+*.old
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Documentation build
+docs/_build/
+site/
+
+# Archives
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Local environment files
+.env
+.env.local
+.envrc
+
+# Custom scripts that might contain sensitive data
+*-local.sh
+*-private.sh
+secrets/
+credentials/
+
+# OpenStack RC files (contain credentials)
+*-openrc.sh
+*openrc.sh
+
+# Test outputs
+test-results/
+test-output/
+
+# Collected metrics and snapshots
+metrics-*/
+snapshots/
+*.csv
+*.json.bak
