@@ -12,80 +12,30 @@ resource "openstack_compute_keypair_v2" "user_key" {
   public_key = file(var.public_key_path)
 }
 
-# Network Resources
-data "openstack_networking_network_v2" "external" {
-  name = var.external_network_name
+# Use existing network
+data "openstack_networking_network_v2" "existing_network" {
+  network_id = var.network_id
 }
 
-resource "openstack_networking_router_v2" "router" {
-  name                = "${var.cluster_name}-router"
-  admin_state_up      = true
-  external_network_id = data.openstack_networking_network_v2.external.id
+# Use existing security groups
+data "openstack_networking_secgroup_v2" "default_sg" {
+  secgroup_id = var.default_security_group_id
 }
 
-resource "openstack_networking_network_v2" "cluster_network" {
-  name = "${var.cluster_name}-network"
-}
-
-resource "openstack_networking_subnet_v2" "cluster_subnet" {
-  name            = "${var.cluster_name}-subnet"
-  network_id      = openstack_networking_network_v2.cluster_network.id
-  cidr            = var.subnet_cidr
-  dns_nameservers = var.dns_nameservers
-}
-
-resource "openstack_networking_router_interface_v2" "router_interface" {
-  router_id = openstack_networking_router_v2.router.id
-  subnet_id = openstack_networking_subnet_v2.cluster_subnet.id
-}
-
-# Security Group
-resource "openstack_compute_secgroup_v2" "cluster_sg" {
-  name        = "${var.cluster_name}-sg"
-  description = "Security group for cluster VMs"
-
-  rule {
-    from_port   = 22
-    to_port     = 22
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  rule {
-    from_port   = -1
-    to_port     = -1
-    ip_protocol = "icmp"
-    cidr        = "0.0.0.0/0"
-  }
-
-  # Allow all internal traffic
-  rule {
-    from_port   = 1
-    to_port     = 65535
-    ip_protocol = "tcp"
-    cidr        = var.subnet_cidr
-  }
-
-  rule {
-    from_port   = 1
-    to_port     = 65535
-    ip_protocol = "udp"
-    cidr        = var.subnet_cidr
-  }
+data "openstack_networking_secgroup_v2" "office_ssh_sg" {
+  secgroup_id = var.office_ssh_security_group_id
 }
 
 # GPU VMs Group
 resource "openstack_networking_port_v2" "gpu_vm_port" {
   count          = var.gpu_vm_count
   name           = "${var.cluster_name}-gpu-vm-${count.index + 1}-port"
-  network_id     = openstack_networking_network_v2.cluster_network.id
+  network_id     = data.openstack_networking_network_v2.existing_network.id
   admin_state_up = true
   security_group_ids = [
-    openstack_compute_secgroup_v2.cluster_sg.id,
+    data.openstack_networking_secgroup_v2.default_sg.id,
+    data.openstack_networking_secgroup_v2.office_ssh_sg.id,
   ]
-  fixed_ip {
-    subnet_id = openstack_networking_subnet_v2.cluster_subnet.id
-  }
 }
 
 resource "openstack_compute_instance_v2" "gpu_vm" {
@@ -119,14 +69,12 @@ resource "openstack_compute_instance_v2" "gpu_vm" {
 resource "openstack_networking_port_v2" "stress_group1_port" {
   count          = var.stress_group1_count
   name           = "${var.cluster_name}-stress-g1-${count.index + 1}-port"
-  network_id     = openstack_networking_network_v2.cluster_network.id
+  network_id     = data.openstack_networking_network_v2.existing_network.id
   admin_state_up = true
   security_group_ids = [
-    openstack_compute_secgroup_v2.cluster_sg.id,
+    data.openstack_networking_secgroup_v2.default_sg.id,
+    data.openstack_networking_secgroup_v2.office_ssh_sg.id,
   ]
-  fixed_ip {
-    subnet_id = openstack_networking_subnet_v2.cluster_subnet.id
-  }
 }
 
 resource "openstack_compute_instance_v2" "stress_group1" {
@@ -160,14 +108,12 @@ resource "openstack_compute_instance_v2" "stress_group1" {
 resource "openstack_networking_port_v2" "stress_group2_port" {
   count          = var.stress_group2_count
   name           = "${var.cluster_name}-stress-g2-${count.index + 1}-port"
-  network_id     = openstack_networking_network_v2.cluster_network.id
+  network_id     = data.openstack_networking_network_v2.existing_network.id
   admin_state_up = true
   security_group_ids = [
-    openstack_compute_secgroup_v2.cluster_sg.id,
+    data.openstack_networking_secgroup_v2.default_sg.id,
+    data.openstack_networking_secgroup_v2.office_ssh_sg.id,
   ]
-  fixed_ip {
-    subnet_id = openstack_networking_subnet_v2.cluster_subnet.id
-  }
 }
 
 resource "openstack_compute_instance_v2" "stress_group2" {
@@ -201,14 +147,12 @@ resource "openstack_compute_instance_v2" "stress_group2" {
 resource "openstack_networking_port_v2" "stress_group3_port" {
   count          = var.stress_group3_count
   name           = "${var.cluster_name}-stress-g3-${count.index + 1}-port"
-  network_id     = openstack_networking_network_v2.cluster_network.id
+  network_id     = data.openstack_networking_network_v2.existing_network.id
   admin_state_up = true
   security_group_ids = [
-    openstack_compute_secgroup_v2.cluster_sg.id,
+    data.openstack_networking_secgroup_v2.default_sg.id,
+    data.openstack_networking_secgroup_v2.office_ssh_sg.id,
   ]
-  fixed_ip {
-    subnet_id = openstack_networking_subnet_v2.cluster_subnet.id
-  }
 }
 
 resource "openstack_compute_instance_v2" "stress_group3" {
@@ -239,26 +183,14 @@ resource "openstack_compute_instance_v2" "stress_group3" {
 }
 
 # Optional Bastion/Proxy VM for external access
-resource "openstack_networking_port_v2" "bastion_internal_port" {
+resource "openstack_networking_port_v2" "bastion_port" {
   count          = var.create_bastion ? 1 : 0
-  name           = "${var.cluster_name}-bastion-internal-port"
-  network_id     = openstack_networking_network_v2.cluster_network.id
+  name           = "${var.cluster_name}-bastion-port"
+  network_id     = data.openstack_networking_network_v2.existing_network.id
   admin_state_up = true
   security_group_ids = [
-    openstack_compute_secgroup_v2.cluster_sg.id,
-  ]
-  fixed_ip {
-    subnet_id = openstack_networking_subnet_v2.cluster_subnet.id
-  }
-}
-
-resource "openstack_networking_port_v2" "bastion_external_port" {
-  count          = var.create_bastion ? 1 : 0
-  name           = "${var.cluster_name}-bastion-external-port"
-  network_id     = data.openstack_networking_network_v2.external.id
-  admin_state_up = true
-  security_group_ids = [
-    openstack_compute_secgroup_v2.cluster_sg.id,
+    data.openstack_networking_secgroup_v2.default_sg.id,
+    data.openstack_networking_secgroup_v2.office_ssh_sg.id,
   ]
 }
 
@@ -271,11 +203,7 @@ resource "openstack_compute_instance_v2" "bastion" {
   user_data   = var.bastion_script_path != "" ? file(var.bastion_script_path) : null
 
   network {
-    port = openstack_networking_port_v2.bastion_internal_port[0].id
-  }
-
-  network {
-    port = openstack_networking_port_v2.bastion_external_port[0].id
+    port = openstack_networking_port_v2.bastion_port[0].id
   }
 
   block_device {

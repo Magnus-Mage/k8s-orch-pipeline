@@ -43,25 +43,15 @@ output "stress_group3_names" {
 }
 
 # Bastion Outputs
-output "bastion_internal_ip" {
-  description = "Internal IP address of bastion host"
-  value       = var.create_bastion ? openstack_networking_port_v2.bastion_internal_port[0].all_fixed_ips[0] : null
-}
-
-output "bastion_external_ip" {
-  description = "External IP address of bastion host"
-  value       = var.create_bastion ? openstack_networking_port_v2.bastion_external_port[0].all_fixed_ips[0] : null
+output "bastion_ip" {
+  description = "IP address of bastion host"
+  value       = var.create_bastion ? openstack_networking_port_v2.bastion_port[0].all_fixed_ips[0] : null
 }
 
 # Network Outputs
-output "cluster_network_id" {
-  description = "ID of the cluster network"
-  value       = openstack_networking_network_v2.cluster_network.id
-}
-
-output "cluster_subnet_id" {
-  description = "ID of the cluster subnet"
-  value       = openstack_networking_subnet_v2.cluster_subnet.id
+output "network_id" {
+  description = "ID of the network used"
+  value       = data.openstack_networking_network_v2.existing_network.id
 }
 
 # Summary Output

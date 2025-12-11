@@ -48,6 +48,7 @@ def main():
     
     bastion_internal_ip = get_value(data, "bastion_internal_ip")
     bastion_external_ip = get_value(data, "bastion_external_ip")
+    bastion_ip = get_value(data, "bastion_ip")
     
     cluster_summary = get_value(data, "cluster_summary") or {}
     
@@ -98,9 +99,9 @@ def main():
             f.write("\n")
         
         # Bastion host
-        if bastion_internal_ip and bastion_external_ip:
+        if bastion_ip:
             f.write("[bastion]\n")
-            f.write(f"bastion ansible_host={bastion_external_ip}\n")
+            f.write(f"bastion ansible_host={bastion_ip}\n")
             f.write("\n")
         
         # Group combinations
@@ -117,7 +118,7 @@ def main():
         if gpu_vm_ips:
             f.write("gpu_vms\n")
         f.write("stress_vms\n")
-        if bastion_internal_ip:
+        if bastion_ip:
             f.write("bastion\n")
         f.write("\n")
         
@@ -126,9 +127,6 @@ def main():
         f.write("ansible_user=ubuntu\n")
         f.write("ansible_ssh_private_key_file=/home/ubuntu/.ssh/user-key\n")
         f.write("ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n")
-        
-        if bastion_external_ip:
-            f.write(f"ansible_ssh_common_args='-o ProxyJump=ubuntu@{bastion_external_ip}'\n")
     
     # Print summary
     print(f"✅ Inventory generated at: {output_file}")
@@ -151,8 +149,8 @@ def main():
         print(f"  [stress_group2]: {len(stress_group2_ips)} VMs")
     if stress_group3_ips:
         print(f"  [stress_group3]: {len(stress_group3_ips)} VMs")
-    if bastion_external_ip:
-        print(f"  [bastion]: {bastion_external_ip}")
+    if bastion_ip:
+        print(f"  [bastion]: {bastion_ip}")
 
 if __name__ == "__main__":
     main()

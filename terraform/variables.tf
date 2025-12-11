@@ -54,35 +54,35 @@ variable "public_key_path" {
 }
 
 # Network Configuration
-variable "external_network_name" {
-  description = "Name of the external network"
+variable "network_id" {
+  description = "ID of the existing network to use"
   type        = string
-  default     = "External_Net"
+  default     = "d0fc30b4-06c0-4dc7-b50e-300cca2d2746"  # mlops-net
 }
 
-variable "subnet_cidr" {
-  description = "CIDR block for the cluster subnet"
+variable "default_security_group_id" {
+  description = "ID of the default security group"
   type        = string
-  default     = "192.168.100.0/24"
+  default     = "1ec2a87e-629d-4b79-bd25-ddee41c00116"  # default
 }
 
-variable "dns_nameservers" {
-  description = "DNS nameservers for the subnet"
-  type        = list(string)
-  default     = ["8.8.8.8", "8.8.4.4"]
+variable "office_ssh_security_group_id" {
+  description = "ID of the office SSH security group"
+  type        = string
+  default     = "f5828232-5bc8-42d4-9f51-6765e22cb419"  # office-PnDvdi-ssh-sg
 }
 
 # GPU VM Group Configuration
 variable "gpu_vm_count" {
   description = "Number of GPU VMs to create"
   type        = number
-  default     = 2
+  default     = 0
 }
 
 variable "gpu_flavor" {
   description = "Flavor for GPU VMs (e.g., GPU-enabled flavor)"
   type        = string
-  default     = "G.8"  # Adjust to your GPU flavor
+  default     = "N.L4.32-New"  # Adjust to your GPU flavor
 }
 
 variable "gpu_volume_size" {
@@ -101,7 +101,7 @@ variable "gpu_script_path" {
 variable "stress_group1_count" {
   description = "Number of VMs in stress test group 1"
   type        = number
-  default     = 3
+  default     = 1
 }
 
 variable "stress_group1_flavor" {
@@ -126,7 +126,7 @@ variable "stress_group1_script_path" {
 variable "stress_group2_count" {
   description = "Number of VMs in stress test group 2"
   type        = number
-  default     = 3
+  default     = 1
 }
 
 variable "stress_group2_flavor" {
@@ -151,7 +151,7 @@ variable "stress_group2_script_path" {
 variable "stress_group3_count" {
   description = "Number of VMs in stress test group 3"
   type        = number
-  default     = 3
+  default     = 1
 }
 
 variable "stress_group3_flavor" {

@@ -1,0 +1,49 @@
+# OpenStack Authentication (REQUIRED)
+auth_url  = "https://your-openstack-url:5000/v3"
+user_name = "your-username"
+password  = "your-password"
+region    = "RegionOne"
+
+# Cluster Configuration
+cluster_name = "gpu-stress-test"
+image        = "Ubuntu-20.04"
+image_uuid   = "cfe32483-65b9-4532-9459-ee6904c02e09"
+
+# SSH Configuration
+keypair_name      = "stress-test-key"
+public_key_path   = "/home/ubuntu/.ssh/user-key.pub"
+
+# Network Configuration
+external_network_name = "External_Net"
+subnet_cidr          = "192.168.100.0/24"
+dns_nameservers      = ["8.8.8.8", "8.8.4.4"]
+
+# GPU VM Configuration
+gpu_vm_count      = 2
+gpu_flavor        = "G.8"  # Your GPU flavor name
+gpu_volume_size   = 50
+gpu_script_path   = "../scripts/script-gpu.sh"
+
+# Stress Test Group 1 - Light Load (e.g., 25% CPU utilization)
+stress_group1_count       = 3
+stress_group1_flavor      = "S.4"
+stress_group1_volume_size = 20
+stress_group1_script_path = "../scripts/script-1.sh"
+
+# Stress Test Group 2 - Medium Load (e.g., 50% CPU utilization)
+stress_group2_count       = 3
+stress_group2_flavor      = "S.4"
+stress_group2_volume_size = 20
+stress_group2_script_path = "../scripts/script-2.sh"
+
+# Stress Test Group 3 - Heavy Load (e.g., 75% CPU utilization)
+stress_group3_count       = 3
+stress_group3_flavor      = "S.4"
+stress_group3_volume_size = 20
+stress_group3_script_path = "../scripts/script-3.sh"
+
+# Bastion Configuration
+create_bastion        = true
+bastion_flavor        = "S.2"
+bastion_volume_size   = 20
+bastion_script_path   = "../scripts/setup-proxy.sh"
