@@ -42,7 +42,7 @@ TIMEOUT=0
 METRICS_INTERVAL=5
 EOF
 
-# Enhanced stress runner with metrics
+# Enhanced stress runner - RUNS IN FOREGROUND for systemd simple type
 cat > run-stress.sh << 'EOF'
 #!/bin/bash
 source /opt/stress-test/config/stress-config.conf
@@ -66,20 +66,16 @@ echo "I/O Workers: $IO_WORKERS"
 echo "Network Bandwidth: $NETWORK_BANDWIDTH"
 echo "==========================================="
 
-# Run stress-ng with comprehensive stressors
-stress-ng --cpu $CPU_WORKERS \
+# Run stress-ng in foreground (exec replaces shell, no backgrounding)
+exec stress-ng --cpu $CPU_WORKERS \
           --vm 1 --vm-bytes $MEM_SIZE \
           --io $IO_WORKERS \
           --hdd 1 --hdd-bytes 256M \
           --sock 2 \
-          --timeout ${TIMEOUT}s \
+          --timeout 0 \
           --metrics-brief \
-          --verbose &
-
-STRESS_PID=$!
-echo $STRESS_PID > /var/run/stress-test.pid
-echo "Stress test running with PID: $STRESS_PID"
-wait $STRESS_PID
+          --syslog \
+          --verbose
 EOF
 
 chmod +x run-stress.sh
@@ -295,20 +291,20 @@ EOF
 
 chmod +x system-info.sh
 
-# Systemd service for stress test
+# Systemd service for stress test - TYPE SIMPLE (NOT FORKING)
 cat > /etc/systemd/system/stress-test.service << 'EOF'
 [Unit]
 Description=Enhanced Stress Test Service - Group 1
 After=network.target
 
 [Service]
-Type=forking
+Type=simple
 ExecStart=/opt/stress-test/run-stress.sh
-PIDFile=/var/run/stress-test.pid
 Restart=on-failure
 RestartSec=10
 StandardOutput=journal
 StandardError=journal
+KillMode=control-group
 
 [Install]
 WantedBy=multi-user.target
@@ -362,4 +358,5 @@ echo "  Start metrics:      sudo systemctl start stress-metrics"
 echo "  Collect metrics:    /opt/stress-test/collect-all-metrics.sh"
 echo "  Run benchmarks:     /opt/stress-test/run-benchmarks.sh"
 echo "  View logs:          tail -f /opt/stress-test/logs/*"
+echo "  Status:             sudo systemctl status stress-test"
 echo "=========================================="
